@@ -1,0 +1,41 @@
+
+> forgefit@0.1.0 build
+> next build
+
+   ▲ Next.js 15.1.0
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/12) ...
+   Generating static pages (3/12) 
+   Generating static pages (6/12) 
+   Generating static pages (9/12) 
+ ✓ Generating static pages (12/12)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ○ /                                    173 B           110 kB
+├ ○ /_not-found                          986 B           107 kB
+├ ƒ /auth/callback                       142 B           106 kB
+├ ƒ /dashboard                           142 B           106 kB
+├ ƒ /history                             6.67 kB         123 kB
+├ ○ /login                               8.55 kB         135 kB
+├ ƒ /profile                             67.8 kB         232 kB
+├ ƒ /progress                            13.4 kB         226 kB
+├ ƒ /weight                              7.91 kB         228 kB
+└ ○ /workouts                            4.22 kB         168 kB
++ First Load JS shared by all            106 kB
+  ├ chunks/4bd1b696-4e8fe2a95ad0bf2f.js  53 kB
+  ├ chunks/517-b10d98e49f1a9d04.js       50.7 kB
+  └ other shared chunks (total)          2 kB
+
+
+ƒ Middleware                             87.4 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

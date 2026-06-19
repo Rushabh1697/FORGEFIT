@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
 export async function login(formData: FormData) {
-  const supabase = await createClient()
+  const supabase = await createServerClient()
 
   const email = formData.get('email') as string
   const password = formData.get('password') as string
@@ -30,25 +30,31 @@ export async function signup(formData: FormData) {
   const password = formData.get('password') as string
   const name = formData.get('name') as string
 
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        full_name: name,
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: name,
+        },
       },
-    },
-  })
+    })
 
-  if (error) {
-    return { error: error.message }
+    if (error) {
+      console.error("Supabase signUp error:", error)
+      return { error: error.message + (error as any).cause ? ` (${(error as any).cause})` : '' }
+    }
+
+    if (data.user && !data.session) {
+      return { error: 'Please check your email to confirm your account.' }
+    }
+
+    revalidatePath('/', 'layout')
+  } catch (err: any) {
+    console.error("Caught error in signup:", err)
+    return { error: err.message || 'Unknown error' }
   }
-
-  if (data.user && !data.session) {
-    return { error: 'Please check your email to confirm your account.' }
-  }
-
-  revalidatePath('/', 'layout')
   redirect('/dashboard')
 }
 

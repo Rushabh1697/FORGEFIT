@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
 export async function login(formData: FormData) {
-  const supabase = await createServerClient()
+  const supabase = await createClient()
 
   const email = formData.get('email') as string
   const password = formData.get('password') as string
@@ -42,19 +42,21 @@ export async function signup(formData: FormData) {
     })
 
     if (error) {
-      console.error("Supabase signUp error:", error)
-      return { error: error.message + (error as any).cause ? ` (${(error as any).cause})` : '' }
+      console.error('Supabase signUp error:', error)
+      return { error: error.message }
     }
 
+    // Email confirmation is required — user was created but has no session yet
     if (data.user && !data.session) {
-      return { error: 'Please check your email to confirm your account.' }
+      return { success: 'Account created! Please check your email to confirm your account before logging in.' }
     }
 
     revalidatePath('/', 'layout')
   } catch (err: any) {
-    console.error("Caught error in signup:", err)
-    return { error: err.message || 'Unknown error' }
+    console.error('Caught error in signup:', err)
+    return { error: err.message || 'An unexpected error occurred. Please try again.' }
   }
+
   redirect('/dashboard')
 }
 

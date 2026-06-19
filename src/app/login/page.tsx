@@ -13,17 +13,42 @@ import { Loader2 } from 'lucide-react'
 export default function LoginPage() {
   const [isPending, setIsPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const supabase = createClient()
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>, action: (formData: FormData) => Promise<{ error?: string } | void>) => {
+  const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsPending(true)
     setError(null)
+    setSuccess(null)
     try {
       const formData = new FormData(e.currentTarget)
-      const result = await action(formData)
+      const result = await login(formData)
       if (result?.error) {
         setError(result.error)
+        setIsPending(false)
+      }
+    } catch (err: any) {
+      if (err.message !== 'NEXT_REDIRECT') {
+        setError(err.message || 'An unexpected error occurred')
+        setIsPending(false)
+      }
+    }
+  }
+
+  const handleSignupSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setIsPending(true)
+    setError(null)
+    setSuccess(null)
+    try {
+      const formData = new FormData(e.currentTarget)
+      const result = await signup(formData)
+      if (result && 'error' in result && result.error) {
+        setError(result.error)
+        setIsPending(false)
+      } else if (result && 'success' in result && result.success) {
+        setSuccess(result.success)
         setIsPending(false)
       }
     } catch (err: any) {
@@ -37,6 +62,7 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     setIsPending(true)
     setError(null)
+    setSuccess(null)
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -66,7 +92,7 @@ export default function LoginPage() {
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
             </TabsList>
             <TabsContent value="login">
-              <form onSubmit={(e) => handleSubmit(e, login)} className="space-y-4">
+              <form onSubmit={handleLoginSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input id="email" name="email" type="email" placeholder="name@example.com" required className="bg-gray-900 border-gray-800" />
@@ -82,7 +108,7 @@ export default function LoginPage() {
               </form>
             </TabsContent>
             <TabsContent value="signup">
-              <form onSubmit={(e) => handleSubmit(e, signup)} className="space-y-4">
+              <form onSubmit={handleSignupSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="signup-name">Full Name</Label>
                   <Input id="signup-name" name="name" placeholder="John Doe" required className="bg-gray-900 border-gray-800" />
@@ -96,6 +122,11 @@ export default function LoginPage() {
                   <Input id="signup-password" name="password" type="password" required className="bg-gray-900 border-gray-800" />
                 </div>
                 {error && <p className="text-sm text-red-500">{error}</p>}
+                {success && (
+                  <div className="rounded-md border border-green-700 bg-green-950/50 p-3">
+                    <p className="text-sm text-green-400">{success}</p>
+                  </div>
+                )}
                 <Button type="submit" className="w-full" disabled={isPending}>
                   {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Create Account'}
                 </Button>
